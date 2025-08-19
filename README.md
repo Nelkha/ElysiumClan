@@ -1,103 +1,124 @@
-# Elysium — Comunidad de Gremio (Frontend y Backend)
+# 🛡️ Elysium — Comunidad de Gremio (Frontend y Backend)
 
-**Despliegue (demo en vivo):** https://www.elysiumclan.com.ar
+**🔗 Despliegue (demo en vivo):** https://www.elysiumclan.com.ar
 
-> Nota para reclutadores: este repositorio público contiene únicamente este README y el enlace de despliegue. Si desea revisar el código fuente completo, por favor envíe un correo cordial a marioagallego91@gmail.com con su nombre, empresa y motivo; responderé con acceso temporal al repositorio privado o con un paquete del código según prefiera.
-
----
-
-## Resumen
-
-Elysium es la interfaz web de una comunidad/gremio de juego online. Es una SPA moderna construida con React y Tailwind, diseñada para gestionar eventos, organizar partys, gestionar solicitudes de ingreso, administrar una wishlist de ítems, compartir clips y ofrecer micro-juegos sociales.
-
-El propósito de este repositorio público es mostrar la demo desplegada. El código completo se facilita bajo petición para procesos de reclutamiento.
+> 📩 Nota para reclutadores: este repositorio público contiene únicamente este README y el enlace de despliegue. Si desea revisar el código fuente completo, por favor envíe un correo cordial a **marioagallego91@gmail.com** con su nombre, empresa y motivo; responderé con acceso temporal al repositorio privado o con un paquete del código según prefiera.
 
 ---
 
-## Características (completas)
+## 🧭 Tabla de contenidos
 
-- Gestión de eventos (piedras, asedios): crear, editar, listar y marcar asistencia.
-- Partys fijas: crear grupos por evento, añadir/quitar miembros desde la UI.
-- Sistema de solicitudes de ingreso:
-  - Los usuarios pueden enviar solicitudes públicas para ingresar al gremio.
-  - Las solicitudes quedan almacenadas en Firestore en la colección `solicitudes` con estados `pendiente`, `aprobado`, `rechazado`.
-  - Los administradores revisan y gestionan solicitudes desde el panel de administración.
-- Aprobación y registro automatizado:
-  - Al aprobar una solicitud, el backend genera un código de registro único (de un solo uso) y lo envía automáticamente por correo al solicitante.
-  - Existen endpoints serverless para generar, enviar y validar códigos (`api/registrarMiembro.js`, `api/sendEmail.js`, `api/validarCodigo.js`).
-- Autenticación y proveedores:
-  - Firebase Auth (email/password) integrado.
-  - Login con Google (OAuth) habilitado vía Firebase o configuración OAuth propia.
-  - Roles y permisos almacenados en Firestore (miembro, admin).
-- Subida y visualización de imágenes (Imgur) para vanguardias y recursos de evento.
-- Wishlist de ítems/armas (visible en demo solo para administradores).
-- Clips de la comunidad: subir y ver clips (YouTube o vídeo directo).
-- Micro-juegos: Parry Game, Historia sin Fin, etc.
-- Dashboard de administración con controles sobre eventos, miembros, solicitudes y contenido.
-- Busqueda de build(equipamiento de cada miembro).
-- Eliminacion de miembros
+- [Resumen](#resumen)
+- [Características (completas)](#características-completas)
+- [Arquitectura y tech stack](#arquitectura-y-tech-stack)
+- [Flujo técnico de registro y aprobación](#flujo-técnico-de-registro-y-aprobación)
+- [Variables de entorno](#variables-de-entorno)
+- [Endpoints serverless incluidos](#endpoints-serverless-incluidos)
+- [Requisitos y ejecución local](#requisitos-y-ejecución-local)
+- [Seguridad y despliegue](#consideraciones-de-seguridad-y-despliegue)
+- [Qué contiene este repo demo](#qué-contiene-este-repo-demo)
+- [Contacto para reclutadores](#contacto-para-reclutadores)
+- [Licencia](#licencia)
 
 ---
 
-## Arquitectura y tech stack
+## 📋 Resumen
+
+Elysium es la interfaz web para una comunidad/gremio de juego online. Es una SPA moderna (React + Tailwind) pensada para:
+
+- gestionar eventos (piedras/asedios),
+- organizar partys fijas,
+- recibir y procesar solicitudes de ingreso,
+- administrar wishlist de ítems,
+- compartir clips de la comunidad,
+- ofrecer mini-juegos y utilidades sociales.
+
+Este repositorio público sirve como demo (enlace arriba). El código fuente completo está disponible bajo petición para procesos de reclutamiento.
+
+---
+
+## ✨ Características (completas)
+
+- 🗓️ Gestión de eventos (piedras, asedios): crear, editar, listar y marcar asistencia.
+- 👥 Partys fijas: crear grupos por evento, añadir/quitar miembros desde la UI.
+- 📨 Sistema de solicitudes de ingreso:
+  - Envío público de solicitudes.
+  - Almacenamiento en Firestore (`solicitudes`) con estados: `pendiente`, `aprobado`, `rechazado`.
+  - Panel de administración para revisar solicitudes.
+- ✅ Aprobación y registro automatizado:
+  - Generación de código único (token) al aprobar.
+  - Envío automático del código por correo (endpoint serverless).
+  - Validación de códigos y activación de miembros.
+- 🔐 Autenticación y proveedores:
+  - Firebase Auth (email/password).
+  - Login con Google (OAuth) integrado.
+  - Roles en Firestore: `miembro`, `admin`.
+- 🖼️ Subida y visualización de imágenes (Imgur) para fotos de vanguardia y eventos.
+- 🎯 Wishlist de ítems/armas (visible en demo solo para administradores).
+- 🎬 Clips de la comunidad: subir y reproducir clips (YouTube o vídeo directo).
+- 🎮 Micro-juegos integrados: Parry Game, Historia sin Fin, y más.
+- 🧭 Dashboard de administración: controlar eventos, miembros, solicitudes y contenido.
+- 🔎 Búsqueda y herramientas: búsqueda de build/equipamiento por miembro, eliminación de miembros, exportes básicos.
+
+---
+
+## 🏗️ Arquitectura y tech stack
 
 - Frontend: React 18 + Vite
 - Estilos: Tailwind CSS
-- UI/animaciones: Framer Motion
-- BBDD y Auth: Firebase (Firestore, Auth, optional Admin SDK)
-- Serverless / Endpoints: Node.js (carpeta `api/`) — ejemplos para Vercel/Netlify
-- Email: Nodemailer o integraciones con SendGrid/Mailgun/Amazon SES
+- Animaciones: Framer Motion
+- BBDD y Auth: Firebase (Firestore, Auth). Opcional: Firebase Admin SDK para funciones seguras.
+- Serverless / Endpoints: Node.js en `api/` (ejemplos preparados para Vercel/Netlify)
+- Email: Nodemailer o integraciones (SendGrid, Mailgun, SES)
 
-Dependencias clave (ver `package.json`): `firebase`, `firebase-admin`, `framer-motion`, `nodemailer`, `vite`.
+Dependencias clave: `firebase`, `firebase-admin`, `framer-motion`, `nodemailer`, `vite`.
 
 ---
 
-## Flujo técnico de registro y aprobación (detallado)
+## 🔁 Flujo técnico de registro y aprobación (detallado)
 
-1. Usuario completa formulario de solicitud en UI pública.
-2. Frontend crea documento en `solicitudes` en Firestore con estado `pendiente`.
-3. Admin revisa solicitudes desde la interfaz admin.
-4. Al aprobar, el endpoint `api/registrarMiembro.js`:
-   - Genera un código único de registro (token) con expiración y marca de uso.
-   - Guarda el token y la relación en Firestore.
+1. El usuario completa un formulario de solicitud en la UI pública.
+2. El frontend crea un documento en `solicitudes` en Firestore con estado `pendiente`.
+3. El administrador revisa la solicitud desde la interfaz de administración.
+4. Al aprobar, `api/registrarMiembro.js`:
+   - Genera un token único con TTL (expiración) y lo marca de un solo uso.
+   - Guarda la referencia en Firestore.
    - Llama a `api/sendEmail.js` para enviar el código al solicitante.
-5. El solicitante utiliza el código para completar la activación o el proceso puede marcarlo automáticamente como miembro según la configuración.
+5. El solicitante usa el código para activar su cuenta o el sistema lo marca como miembro según la configuración.
 
-Seguridad:
-- Los endpoints que modifican estados críticos (aprobación, generación de códigos, envío de correos) deben requerir autenticación admin (por ejemplo, verificación del token Firebase Admin o comprobación de rol en Firestore).
-- Los códigos tienen TTL y caducan si no se usan en un plazo configurable.
+**Seguridad:** los endpoints críticos deben validar que la petición provenga de un admin autenticado (verificación con Firebase Admin o comprobación de rol en Firestore). Los tokens son de un solo uso y expiran.
 
 ---
 
-## Variables de entorno (ejemplos)
+## 🔑 Variables de entorno (ejemplos)
 
 - `VITE_IMGUR_CLIENT_ID` — Client ID Imgur
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — para envío de correos (o usar credenciales del proveedor)
-- `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` — para login con Google (si no se usa Firebase como proxy)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — credenciales SMTP o API key proveedor de email
+- `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` — para login con Google (si no se usa Firebase delegando)
 
-> Nunca incluir credenciales en repositorios públicos. Usar variables de entorno en el hosting.
-
----
-
-## Endpoints serverless incluidos (resumen)
-
-- `api/registrarMiembro.js` — genera código de registro y coordina su envío al solicitante.
-- `api/sendEmail.js` — envía correos (SMTP o API externa).
-- `api/validarCodigo.js` — valida código de registro y completa la activación.
-
-Estos archivos contienen ejemplos y requieren configurar variables de entorno para SMTP y credenciales.
+> ⚠️ Nunca incluir credenciales en repositorios públicos. Usar variables de entorno en el proveedor de hosting.
 
 ---
 
-## Requisitos y ejecución local
+## ⚙️ Endpoints serverless incluidos (resumen)
 
-Requisitos
+- `api/registrarMiembro.js` — genera código de registro y coordina su envío.
+- `api/sendEmail.js` — wrapper para envío de correos (SMTP o API externa).
+- `api/validarCodigo.js` — valida códigos de registro y completa la activación.
+
+> Estos archivos son ejemplos que requieren configuración de variables de entorno y permisos adecuados.
+
+---
+
+## 🚀 Requisitos y ejecución local
+
+Requisitos:
 - Node.js >= 18
 - npm o yarn
-- (Opcional) Firebase CLI para emulación local de Firestore y funciones
+- (Opcional) Firebase CLI para emulación local
 
-Instalación
+Instalación y ejecución:
 
 ```bash
 npm install
@@ -105,38 +126,45 @@ npm install
 npm run dev
 ```
 
-Para probar endpoints serverless localmente se recomienda usar la emulación de Firebase o ejecutar un servidor Node local apuntando a `api/`.
+Para desarrollar y probar endpoints serverless se recomienda la emulación de Firebase o ejecutar un servidor Node apuntando a `api/`.
 
 ---
 
-## Consideraciones de seguridad y despliegue
+## 🔒 Consideraciones de seguridad y despliegue
 
-- Revisar y endurecer reglas de Firestore para evitar lecturas/escrituras públicas no autorizadas.
-- Asegurar endpoints críticos (generación de códigos, envío de correos) verificando que la petición la realice un administrador autenticado.
-- Usar HTTPS y configurar CORS correctamente en los endpoints.
-- Limitar logs con datos personales y evitar almacenar información sensible en texto plano.
+- Revisar y endurecer reglas de Firestore (read/write) antes de exponer datos.
+- Validar que los endpoints que generan códigos o envían correos solo permitan peticiones de admins autenticados.
+- Configurar CORS y servir siempre mediante HTTPS.
+- Evitar logs con datos personales sensibles.
 
 ---
 
-## Qué contiene este repositorio demo
+## 📦 Qué contiene este repositorio demo
 
+Incluye:
 - README completo y enlace de despliegue público.
-- La demo desplegada muestra la UI sin exponer credenciales ni datos sensibles.
+- Demo en producción que muestra la interfaz (sin exponer credenciales).
 
 No incluye:
 - Credenciales (Firebase admin keys, SMTP)
-- Repositorio completo del código (se entrega bajo petición)
+- Repositorio completo del código (se entrega bajo petición a reclutadores)
 
 ---
 
-## Contacto para reclutadores
+## 📬 Contacto para reclutadores
 
-Mario A. Gallego — marioagallego91@gmail.com
+**Mario A. Gallego** — marioagallego91@gmail.com
 
-Por favor incluya en el correo: nombre, compañía, puesto y motivo de la solicitud. Responderé con acceso privado al código o con instrucciones para revisar el proyecto según su preferencia.
+Por favor incluya en el correo: nombre, compañía, puesto y motivo de la solicitud. Responderé con acceso privado al código o instrucciones para revisar el proyecto según su preferencia.
+
 ---
 
+## 📝 README corto para descripción de GitHub
 
-## Licencia
+**Interfaz web para gestionar una comunidad/gremio de juego:** eventos, partys, solicitudes, wishlist y clips — SPA en React + Tailwind + Firebase. Demo: https://www.elysiumclan.com.ar
 
-Contenido demo para evaluación técnica. Para acuerdos de licencia o uso en producción, contacte al autor.
+---
+
+## 📜 Licencia
+
+Contenido demo para evaluación técnica. Para acuerdos de licencia o uso en producción, contactar al autor.
