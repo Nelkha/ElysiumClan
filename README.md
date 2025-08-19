@@ -156,12 +156,7 @@ No incluye:
 **Mario A. Gallego** — marioagallego91@gmail.com
 
 Por favor incluya en el correo: nombre, compañía, puesto y motivo de la solicitud. Responderé con acceso privado al código o instrucciones para revisar el proyecto según su preferencia.
-
 ---
-
-## 📝 README corto para descripción de GitHub
-
-**Interfaz web para gestionar una comunidad/gremio de juego:** eventos, partys, solicitudes, wishlist y clips — SPA en React + Tailwind + Firebase. Demo: https://www.elysiumclan.com.ar
 
 ---
 
